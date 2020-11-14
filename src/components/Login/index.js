@@ -55,7 +55,6 @@ function Login({ LoginUser, errors }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(errors.loginError);
     if (errors.loginError) {
       setError(errors.loginError);
       setLoading(false);

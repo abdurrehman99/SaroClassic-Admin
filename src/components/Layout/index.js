@@ -7,7 +7,7 @@ import {
   AppBar,
   Toolbar,
   Container,
-  // Typography,
+  Typography,
   // Divider,
   CssBaseline,
   ListItem,
@@ -16,26 +16,27 @@ import {
   Avatar,
   List,
   Collapse,
+  IconButton,
 } from "@material-ui/core";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import salesfooLogo from "../../assets/icons/salesfoo.png";
 import sweetAlert from "sweetalert";
 
-import AnalyticsIcon from "../../assets/icons/Analytics.svg";
-import GroupIcon from "../../assets/icons/Group.svg";
-import HomeIcon from "../../assets/icons/Home.svg";
-import SettingsIcon from "../../assets/icons/Settings.svg";
 import UserIcon from "../../assets/icons/User.svg";
-import FilterIcon from "../../assets/icons/Filter.svg";
-import IconButton from "@material-ui/core/IconButton";
+
+import SettingsIcon from "@material-ui/icons/Settings";
+import PeopleIcon from "@material-ui/icons/People";
+import OrderIcon from "@material-ui/icons/Receipt";
+import CategoryIcon from "@material-ui/icons/Category";
+import ProductIcon from "@material-ui/icons/LocalMall";
+
 import { logoutUser } from "../../redux/actions/authActions";
 
-const drawerWidth = 300;
+const drawerWidth = 270;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,7 +85,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     paddingTop: 100,
-    backgroundColor: "white",
     padding: theme.spacing(0),
   },
   navLogo: {
@@ -117,16 +117,22 @@ const useStyles = makeStyles((theme) => ({
   },
   menuIcon: {
     color: "black",
+    fontSize: 22,
     cursor: "pointer",
+    marginTop: 3,
   },
   listItemIcon: {},
   listItem: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: 8,
+    paddingBottom: 8,
+    marginBottom: 8,
   },
   avatar: {
     cursor: "pointer",
     marginLeft: 10,
+  },
+  icons: {
+    color: "white",
   },
   lineDiv: {
     borderLeft: "3px solid white",
@@ -139,38 +145,10 @@ const useStyles = makeStyles((theme) => ({
 const Index = ({ children, logoutUser }) => {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [configuration, setConfiguration] = useState(false);
-  const [user, setUser] = useState(false);
-  const [sales, setSales] = useState(false);
-  const [customer, setCustomer] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const toggleDrawer = () => {
     setOpen((prevState) => !prevState);
-    setConfiguration(false);
-    setUser(false);
-    setSales(false);
-    setCustomer(false);
-  };
-
-  const handleConfigurationClick = () => {
-    setConfiguration(!configuration);
-    if (!open) setOpen(true);
-  };
-
-  const handleUserClick = () => {
-    setUser(!user);
-    if (!open) setOpen(true);
-  };
-
-  const handleSalesClick = () => {
-    setSales(!sales);
-    if (!open) setOpen(true);
-  };
-
-  const handleCustomerClick = () => {
-    setCustomer(!customer);
-    if (!open) setOpen(true);
   };
 
   const logout = () => {
@@ -191,12 +169,20 @@ const Index = ({ children, logoutUser }) => {
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
-          <MenuItem style={{ marginRight: "auto" }} component={Link} to={"/"}>
+          <MenuItem
+            style={{ marginRight: "auto" }}
+            component={Link}
+            to={"/home"}
+          >
             <img src={salesfooLogo} alt="" className={classes.navLogo} />
           </MenuItem>
-          <Avatar alt="Admin" src="" className={classes.avatar} />
-
-          <IconButton onClick={logout} color="primary" component="span">
+          <IconButton
+            style={{ borderRadius: 5 }}
+            onClick={logout}
+            color="primary"
+            component="span"
+          >
+            <Typography variant="body2">Logout </Typography>
             <ExitToAppIcon className={classes.menuIcon} />
           </IconButton>
         </Toolbar>
@@ -215,153 +201,65 @@ const Index = ({ children, logoutUser }) => {
         }}
       >
         <List className={classes.textWhite}>
-          <ListItem className={classes.listItem} button>
-            <ListItemIcon className={classes.listItemIcon}>
-              <img
-                src={HomeIcon}
-                alt=""
-                className={classes.drawerIcon}
-                width={22}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"DASHBOARD"} />
-          </ListItem>
-
-          <ListItem
+          <MenuItem
+            component={Link}
+            to={"/products"}
             className={classes.listItem}
-            onClick={handleConfigurationClick}
             button
           >
             <ListItemIcon className={classes.listItemIcon}>
-              <img
-                src={SettingsIcon}
-                alt=""
-                className={classes.drawerIcon}
-                width={22}
-              />
+              <ProductIcon className={classes.icons} />
             </ListItemIcon>
-            <ListItemText primary={"CONFIGURATION"} />
-          </ListItem>
-          <Collapse
-            className={classes.lineDiv}
-            in={configuration}
-            timeout="auto"
-            unmountOnExit
-          >
-            <List className={classes.submenu} component="div" disablePadding>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Template" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Picklist" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Currency" />
-              </ListItem>
-            </List>
-          </Collapse>
+            <ListItemText primary={"PRODUCTS"} />
+          </MenuItem>
 
-          <ListItem
+          <MenuItem
+            component={Link}
+            to={"/categories"}
             className={classes.listItem}
-            onClick={handleUserClick}
             button
           >
             <ListItemIcon className={classes.listItemIcon}>
-              <img
-                src={UserIcon}
-                alt=""
-                className={classes.drawerIcon}
-                width={22}
-              />
+              <CategoryIcon className={classes.icons} />
             </ListItemIcon>
-            <ListItemText primary={"USER"} />
-          </ListItem>
-          <Collapse
-            className={classes.lineDiv}
-            in={user}
-            timeout="auto"
-            unmountOnExit
-          >
-            <List className={classes.submenu} component="div" disablePadding>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Access Management" />
-              </ListItem>
-            </List>
-          </Collapse>
+            <ListItemText primary={"CATEGORIES"} />
+          </MenuItem>
 
-          <ListItem
+          <MenuItem
+            component={Link}
+            to={"/account"}
             className={classes.listItem}
-            onClick={handleSalesClick}
             button
           >
             <ListItemIcon className={classes.listItemIcon}>
-              <img
-                src={AnalyticsIcon}
-                alt=""
-                className={classes.drawerIcon}
-                width={22}
-              />
+              <OrderIcon className={classes.icons} />
             </ListItemIcon>
-            <ListItemText primary={"SALES"} />
-          </ListItem>
-          <Collapse
-            className={classes.lineDiv}
-            in={sales}
-            timeout="auto"
-            unmountOnExit
-          >
-            <List className={classes.submenu} component="div" disablePadding>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Path" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Lead" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Deal" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Story Board" />
-              </ListItem>
-            </List>
-          </Collapse>
+            <ListItemText primary={"ORDERS"} />
+          </MenuItem>
 
-          <ListItem
+          <MenuItem
+            component={Link}
+            to={"/account"}
             className={classes.listItem}
-            onClick={handleCustomerClick}
             button
           >
             <ListItemIcon className={classes.listItemIcon}>
-              <img
-                src={GroupIcon}
-                alt=""
-                className={classes.drawerIcon}
-                width={22}
-              />
+              <PeopleIcon className={classes.icons} />
             </ListItemIcon>
-            <ListItemText primary={"CUSTOMER"} />
-          </ListItem>
-          <Collapse
-            className={classes.lineDiv}
-            in={customer}
-            timeout="auto"
-            unmountOnExit
-          >
-            <List className={classes.submenu} component="div" disablePadding>
-              <MenuItem
-                component={Link}
-                to={"/account"}
-                button
-                className={classes.nested}
-              >
-                <ListItemText primary="Account"></ListItemText>
-              </MenuItem>
+            <ListItemText primary={"CUSTOMERS"} />
+          </MenuItem>
 
-              <ListItem button className={classes.nested}>
-                <ListItemText primary="Customer" />
-              </ListItem>
-            </List>
-          </Collapse>
+          <MenuItem
+            component={Link}
+            to={"/settings"}
+            className={classes.listItem}
+            button
+          >
+            <ListItemIcon className={classes.listItemIcon}>
+              <SettingsIcon className={classes.icons} />
+            </ListItemIcon>
+            <ListItemText primary={"SETTINGS"} />
+          </MenuItem>
         </List>
         <ListItem style={{ marginTop: "auto" }} onClick={toggleDrawer} button>
           <ListItemIcon>

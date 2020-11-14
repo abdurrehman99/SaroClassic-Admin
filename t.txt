@@ -1,0 +1,4 @@
+Products ==> Add new Product, delete , Edit
+Categories ==> Add new, delete
+Orders ==> View All orders
+Customers ==> Veiw All Customers
