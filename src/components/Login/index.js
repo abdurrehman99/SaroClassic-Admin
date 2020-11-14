@@ -106,7 +106,11 @@ function Login({ LoginUser, errors }) {
   }
   const classes = useStyles();
   return (
-    <Container component="main" maxWidth="xs">
+    <Container
+      className="animate__animated animate__fadeIn"
+      component="main"
+      maxWidth="xs"
+    >
       <Snackbar
         open={snackbar}
         autoHideDuration={4000}

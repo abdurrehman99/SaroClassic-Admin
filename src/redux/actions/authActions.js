@@ -3,14 +3,13 @@ import axios from "axios";
 import { ROUTES } from "../../utils/routes";
 import setAuthToken from "../../utils/setAuthToken";
 import { setErrors } from "../actions/errorActions";
-import jwtDecode from "jwt-decode";
 import sweetAlert from "sweetalert";
 
 //Register User
 export const LoginUser = (data) => async (dispatch) => {
   try {
     let response = await axios.post(ROUTES.AdminLogin, data);
-    const { token } = response;
+    const { token } = response.data;
     console.log(response);
 
     //set current user
@@ -21,10 +20,11 @@ export const LoginUser = (data) => async (dispatch) => {
     });
 
     //Set Token to axios header
+    let jwtToken = token.split(" ");
     setAuthToken(token);
 
     //Save to local storage
-    localStorage.setItem("jwtToken", token);
+    localStorage.setItem("jwtToken", jwtToken[1]);
   } catch (error) {
     // console.log(error.response.data);
     let { message } = error.response.data;
@@ -42,6 +42,10 @@ export const setCurrentUser = (decoded) => {
 
 //Log user out
 export const logoutUser = () => {
+  //Remove token from local storage
+  localStorage.removeItem("jwtToken");
+  //remove auth header
+  setAuthToken(null);
   return {
     type: LOGOUT_USER,
   };

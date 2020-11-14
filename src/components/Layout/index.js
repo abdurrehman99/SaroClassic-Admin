@@ -17,26 +17,23 @@ import {
   List,
   Collapse,
 } from "@material-ui/core";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-// import PersonRoundedIcon from "@material-ui/icons/PersonRounded";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
-// import MenuOutlinedIcon from "@material-ui/icons/MenuOutlined";
-import NotificationsOutlinedIcon from "@material-ui/icons/NotificationsOutlined";
-import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import salesfooLogo from "../../assets/icons/salesfoo.png";
+import sweetAlert from "sweetalert";
 
 import AnalyticsIcon from "../../assets/icons/Analytics.svg";
 import GroupIcon from "../../assets/icons/Group.svg";
 import HomeIcon from "../../assets/icons/Home.svg";
 import SettingsIcon from "../../assets/icons/Settings.svg";
 import UserIcon from "../../assets/icons/User.svg";
-// import BellIcon from "../../assets/icons/Bell.svg";
 import FilterIcon from "../../assets/icons/Filter.svg";
-import MenuIcon from "../../assets/icons/Menu.svg";
-// import SearchIcon from "../../assets/icons/Search.svg";
 import IconButton from "@material-ui/core/IconButton";
+import { logoutUser } from "../../redux/actions/authActions";
 
 const drawerWidth = 300;
 
@@ -139,7 +136,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Index = ({ children }) => {
+const Index = ({ children, logoutUser }) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -176,6 +173,19 @@ const Index = ({ children }) => {
     if (!open) setOpen(true);
   };
 
+  const logout = () => {
+    sweetAlert({
+      title: "Are you sure want to logout ?",
+      icon: "warning",
+      buttons: ["No", "Yes"],
+      closeOnClickOutside: false,
+    }).then((willDelete) => {
+      if (willDelete) {
+        logoutUser();
+      }
+    });
+  };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -184,32 +194,11 @@ const Index = ({ children }) => {
           <MenuItem style={{ marginRight: "auto" }} component={Link} to={"/"}>
             <img src={salesfooLogo} alt="" className={classes.navLogo} />
           </MenuItem>
-          <IconButton color="primary" component="span">
-            <img
-              src={FilterIcon}
-              alt=""
-              className={classes.blackIcon}
-              width={18}
-            />
+          <Avatar alt="Admin" src="" className={classes.avatar} />
+
+          <IconButton onClick={logout} color="primary" component="span">
+            <ExitToAppIcon className={classes.menuIcon} />
           </IconButton>
-          <IconButton color="primary" component="span">
-            <SearchOutlinedIcon className={classes.blackIcon} />
-          </IconButton>
-          <IconButton color="primary" component="span">
-            <img
-              src={MenuIcon}
-              alt=""
-              className={classes.blackIcon}
-              width={18}
-            />
-          </IconButton>
-          <IconButton color="primary" component="span">
-            <NotificationsOutlinedIcon className={classes.blackIcon} />
-          </IconButton>
-          <IconButton color="primary" component="span">
-            <MoreVertOutlinedIcon className={classes.menuIcon} />
-          </IconButton>
-          <Avatar alt="Sales" src="" className={classes.avatar} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -389,4 +378,6 @@ const Index = ({ children }) => {
   );
 };
 
-export default Index;
+const mapStateToProps = (state) => ({});
+
+export default connect(mapStateToProps, { logoutUser })(Index);
