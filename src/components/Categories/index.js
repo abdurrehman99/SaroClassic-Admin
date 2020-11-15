@@ -122,7 +122,6 @@ const useStyles = makeStyles((theme) => ({
 
     border: "1px solid #E0E0E0",
     marginLeft: 8,
-    borderRadius: 4,
     width: 38,
     height: 39,
   },
@@ -236,6 +235,7 @@ const Index = () => {
         margin="dense"
         fullWidth
         type="text"
+        maxLength={12}
         error={categoryError.error}
         helperText={categoryError.helperText}
         label="Enter New Category Name"
@@ -248,18 +248,12 @@ const Index = () => {
         <List className={classes.root}>
           {categories.map((value, index) => {
             return (
-              <ListItem
-                key={index}
-                // role={undefined}
-                dense
-                button
-              >
+              <ListItem key={index} dense>
                 <ListItemText id={index} primary={value.name} />
                 <ListItemSecondaryAction>
                   <IconButton
+                    style={{ color: "red" }}
                     onClick={() => handleDelete(value.name)}
-                    edge="end"
-                    aria-label="comments"
                   >
                     <DeleteOutline />
                   </IconButton>

@@ -1,12 +1,19 @@
 export const SERVER_URL = "https://saroclassic-server.herokuapp.com";
 
 export const ROUTES = {
+  //Cloudinary img URL
+  ImageUpload: "https://api.cloudinary.com/v1_1/ebad/image/upload",
+  //Login Route
   AdminLogin: `${SERVER_URL}/admin/login`,
-  AdminPasswordChange: `${SERVER_URL}/admin/changePassword`,
 
+  //Protected Routes
+  AdminPasswordChange: `${SERVER_URL}/admin/changePassword`,
   AddNewCategory: `${SERVER_URL}/admin/addNewCategory`,
   DeleteCategory: `${SERVER_URL}/admin/deleteCategory?name=`,
+  AddNewProduct: `${SERVER_URL}/admin/addNewProduct`,
+  DeleteProduct: `${SERVER_URL}/admin/deleteProduct?id=`,
 
-  GetAllCategories: `${SERVER_URL}/categories/all`,
+  //Public routes
   GetAllProducts: `${SERVER_URL}/products/all`,
+  GetAllCategories: `${SERVER_URL}/categories/all`,
 };

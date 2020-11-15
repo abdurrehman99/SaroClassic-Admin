@@ -1,7 +1,7 @@
 export const regex = {
   emailRegex: /^(([^<>()\\.,;:\s@"]+(\.[^<>()\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i,
   passwordRegex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-  nameRegex: /^[a-zA-Z\s-]{3,}$/,
+  nameRegex: /^[a-zA-Z]{3,25}$/,
   codeRegex: /^[0-9]+$/,
   currencyFloatRegex: /^\d+(\.\d+)?$/,
 };
@@ -12,6 +12,14 @@ export const fieldValidate = (text, type) => {
     helperText: "",
   };
   switch (type) {
+    case "price":
+      if (text > 9999 || text === "") {
+        result = {
+          error: true,
+          helperText: "Price can not be greater than 9999",
+        };
+      } else result = { error: false, helperText: "" };
+      break;
     case "email":
       if (!regex.emailRegex.test(text)) {
         result = { error: true, helperText: "Incorrect Email Format." };
@@ -32,7 +40,7 @@ export const fieldValidate = (text, type) => {
         result = {
           error: true,
           helperText:
-            "Incorrect Format. Can only contain alphabets, - character and atleast 3 characters long.",
+            "Incorrect Format! Can only contain alphabets & atleast 3 to 25 characters long",
         };
       }
       break;

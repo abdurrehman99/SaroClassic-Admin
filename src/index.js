@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./components/App";
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import "./index.css";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 
 const theme = createMuiTheme({
@@ -25,7 +26,7 @@ const theme = createMuiTheme({
     fontSize: 14,
   },
   shape: {
-    borderRadius: 25,
+    // borderRadius: 25,
   },
 });
 

@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -61,6 +61,8 @@ export default function SignIn() {
     error: "",
     type: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const [password1Error, setPassword1Error] = useState(false);
   const [password2Error, setPassword2Error] = useState(false);
@@ -90,6 +92,7 @@ export default function SignIn() {
       formValues.passwordNew.length >= 3
     ) {
       try {
+        setLoading(true);
         const res = await axios.post(ROUTES.AdminPasswordChange, formValues);
         console.log(res.data);
         setState({
@@ -98,10 +101,11 @@ export default function SignIn() {
           type: "success",
         });
       } catch (error) {
+        setLoading(false);
         console.log(error.response);
         setState({
           snackbar: true,
-          error: error.response.data.msg,
+          error: error.response.data.message,
           type: "error",
         });
       }
@@ -156,6 +160,7 @@ export default function SignIn() {
           />
           <Button
             fullWidth
+            disabled={loading}
             variant="contained"
             color="primary"
             onClick={handlePasswordChange}
