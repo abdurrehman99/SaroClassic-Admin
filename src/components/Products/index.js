@@ -65,22 +65,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 15,
     marginTop: 5,
   },
-  iconButton: {
-    paddingTop: 0,
-    paddingButtom: 0,
-  },
-  searchBar: {
-    width: 255.4,
-    marginRight: 20,
-  },
+
   avatar: {
     marginRight: 10,
   },
-  imageClearBtn: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    zIndex: 500,
+  AddNewBtn: {
+    float: "right",
   },
   previewImg: {
     height: 250,
@@ -644,7 +634,7 @@ const Index = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid item xs={6}>
+      <div>
         <TextField
           margin="dense"
           placeholder="Seacrh..."
@@ -669,11 +659,12 @@ const Index = () => {
         <Button
           onClick={() => toggleModal("Add New Product")}
           variant="contained"
+          className={classes.AddNewBtn}
           color="primary"
         >
           Add new Product <Add style={{ width: 20, height: 20 }} />
         </Button>
-      </Grid>
+      </div>
       <Grid container direction="row">
         {loading === false && products.length === 0 ? (
           <Typography variant="body1">No Products found in Database</Typography>

@@ -23,10 +23,8 @@ import { Link } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import salesfooLogo from "../../assets/icons/salesfoo.png";
+import Logo from "../../assets/Logo.png";
 import sweetAlert from "sweetalert";
-
-import UserIcon from "../../assets/icons/User.svg";
 
 import SettingsIcon from "@material-ui/icons/Settings";
 import PeopleIcon from "@material-ui/icons/People";
@@ -88,7 +86,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0),
   },
   navLogo: {
-    width: 218,
     height: 65,
     marginRight: "auto",
   },
@@ -174,7 +171,7 @@ const Index = ({ children, logoutUser }) => {
             component={Link}
             to={"/home"}
           >
-            <img src={salesfooLogo} alt="" className={classes.navLogo} />
+            <img src={Logo} alt="" className={classes.navLogo} />
           </MenuItem>
           <IconButton
             style={{ borderRadius: 5 }}
