@@ -13,7 +13,7 @@ export const LoginUser = (data) => async (dispatch) => {
     console.log(response);
 
     //set current user
-    dispatch(setCurrentUser(data.email));
+    dispatch(setCurrentUser({ email: data.email }));
     sweetAlert({
       title: "You are logged in!",
       icon: "success",
@@ -33,10 +33,11 @@ export const LoginUser = (data) => async (dispatch) => {
 };
 
 //Set Current user
-export const setCurrentUser = (decoded) => {
+export const setCurrentUser = (payload) => {
+  console.log("setUser");
   return {
     type: SET_CURRENT_USER,
-    payload: decoded,
+    payload,
   };
 };
 

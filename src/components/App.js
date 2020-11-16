@@ -17,26 +17,16 @@ import jwtDecode from "jwt-decode";
 // const Account = lazy(() => import("../components/Account"));
 
 const App = ({ auth, setCurrentUser, logoutUser }) => {
-  const [state, setState] = useState({
-    auth: false,
-  });
-  useEffect(() => {
-    let token = localStorage.getItem("jwtToken");
+  let token = localStorage.getItem("jwtToken");
 
-    if (token) {
-      const { email, exp, iat } = jwtDecode(token);
-      // console.log(Date(exp));
-      // console.log(Date(iat));
-      // console.log(new Date().toTimeString());
-      setState({ auth: true });
-      setCurrentUser(email);
-      console.log(jwtDecode(token));
-    } else {
-      setState({ auth: false });
-
-      logoutUser();
-    }
-  }, [auth]);
+  if (token) {
+    const { email, exp, iat } = jwtDecode(token);
+    // console.log(Date(exp));
+    // console.log(Date(iat));
+    // console.log(new Date().toTimeString());
+    setCurrentUser({ email });
+    // console.log(jwtDecode(token));
+  }
 
   if (!auth) return <Login />;
   else {

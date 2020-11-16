@@ -30,14 +30,8 @@ import ArrowUpward from "@material-ui/icons/ArrowUpward";
 import { fieldValidate } from "../../utils/formValidation";
 import { ROUTES } from "../../utils/routes";
 import axios from "axios";
-
-import {
-  ExpandLess,
-  ExpandMore,
-  ChevronLeft,
-  ChevronRight,
-  DeleteOutline,
-} from "@material-ui/icons";
+import sweetAlert from "sweetalert";
+import { ExpandLess, ChevronRight, DeleteOutline } from "@material-ui/icons";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -56,14 +50,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     textTransform: "none",
   },
-  filterButton: {
-    marginRight: 20,
-    width: 133.4,
-    height: 44.5,
-    fontSize: "16px",
-    fontWeight: "bold",
-    textTransform: "none",
-  },
+  Text: { textAlign: "center", marginBottom: 20, marginTop: 20 },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: "#fff",
@@ -79,28 +66,10 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     marginRight: 10,
   },
-  breadcrumbs: {
-    paddingTop: 15,
-    paddingBottom: 10,
-  },
-  navLink: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  navLinkActive: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#0582ff",
-  },
   searchRow: {
     marginTop: theme.spacing(3),
     marginLeft: 40.1,
     verticalAlign: "center",
-  },
-  inlineFlex: {
-    display: "inline-flex",
-    verticalAlign: "center",
-    width: "100%",
   },
   para: {
     fontWeight: "light",
@@ -161,44 +130,66 @@ const Index = () => {
     }
   };
 
-  const handleDelete = async (name) => {
-    try {
-      setLoading(true);
-      const res = await axios.delete(ROUTES.DeleteCategory + name);
-      console.log(res.data);
-      setLoading(false);
-      let filteredCategory = categories.filter((e) => e.name !== name);
-      setCategories(filteredCategory);
-      setState({
-        snackbar: true,
-        error: res.data.msg,
-        type: "success",
-      });
-    } catch (error) {
-      setLoading(false);
-      console.log(error.response);
-      setState({
-        snackbar: true,
-        error: "Failed to delete category",
-        type: "error",
-      });
-    }
+  const handleDelete = (name) => {
+    sweetAlert({
+      title: "Are you sure want to delete ?",
+      icon: "warning",
+      buttons: ["No", "Yes"],
+      dangerMode: true,
+      closeOnClickOutside: false,
+    }).then(async (yes) => {
+      if (yes) {
+        try {
+          setLoading(true);
+          const res = await axios.delete(ROUTES.DeleteCategory + name);
+          console.log(res.data);
+          setLoading(false);
+          let filteredCategory = categories.filter((e) => e.name !== name);
+          setCategories(filteredCategory);
+          setState({
+            snackbar: true,
+            error: res.data.msg,
+            type: "success",
+          });
+        } catch (error) {
+          setLoading(false);
+          console.log(error.response);
+          setState({
+            snackbar: true,
+            error: "Failed to delete category",
+            type: "error",
+          });
+        }
+      }
+    });
   };
 
   const handleNew = async () => {
-    let cError = fieldValidate(category, "name");
+    let cError;
+    if (category.length < 3) {
+      cError = {
+        error: true,
+        helperText: "Category Name must be of 3 characters",
+      };
+    } else
+      cError = {
+        error: false,
+        helperText: "",
+      };
     setCategoryError(cError);
     if (cError.error === false) {
       try {
         setLoading(true);
         const res = await axios.post(ROUTES.AddNewCategory, { name: category });
         console.log(res.data);
+        setLoading(false);
         setState({
           snackbar: true,
           error: res.data.msg,
           type: "success",
         });
-        setLoading(false);
+        setCategory("");
+        getData();
       } catch (error) {
         setLoading(false);
         setState({
@@ -229,27 +220,37 @@ const Index = () => {
           {state.error}
         </Alert>
       </Snackbar>
-      <TextField
-        variant="outlined"
-        onChange={(e) => setCategory(e.target.value)}
-        margin="dense"
-        fullWidth
-        type="text"
-        maxLength={12}
-        error={categoryError.error}
-        helperText={categoryError.helperText}
-        label="Enter New Category Name"
-        name="category"
-      />
+      <div>
+        <TextField
+          variant="outlined"
+          onChange={(e) => setCategory(e.target.value)}
+          margin="dense"
+          type="text"
+          value={category}
+          maxLength={12}
+          error={categoryError.error}
+          helperText={categoryError.helperText}
+          label="New Category Name"
+          name="category"
+        />
+      </div>
       <Button onClick={handleNew} variant="contained" color="primary">
         Add new Category
       </Button>
-      <Grid item xs={6}>
+      {loading === false && categories.length === 0 ? (
+        <Typography variant="body1">No Categories found in Database</Typography>
+      ) : null}
+      <Grid item xs={4}>
+        {categories.length > 0 ? (
+          <Typography variant="h6" className={classes.Text}>
+            Categories Available
+          </Typography>
+        ) : null}
         <List className={classes.root}>
-          {categories.map((value, index) => {
+          {categories.map((value, i) => {
             return (
-              <ListItem key={index} dense>
-                <ListItemText id={index} primary={value.name} />
+              <ListItem style={{ marginBottom: 5 }} selected key={i}>
+                <ListItemText id={i} primary={`${i + 1}. ${value.name}`} />
                 <ListItemSecondaryAction>
                   <IconButton
                     style={{ color: "red" }}

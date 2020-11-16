@@ -21,7 +21,7 @@ import {
   CardActionArea,
   CardMedia,
   CardContent,
-  CardActions,
+  OutlinedInput,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -38,25 +38,23 @@ import {
   Close,
   Add,
   Done,
-  ChevronRight,
-  NavigateNextIcon,
+  Search,
+  DeleteOutline,
+  Edit,
 } from "@material-ui/icons";
+import sweetAlert from "sweetalert";
 
 const useStyles = makeStyles((theme) => ({
   bodyPadding: {
     // paddingBottom: theme.spacing(1),
     fontWeight: "bold",
   },
-  actionButtons: {
-    marginRight: 20,
-    width: 122,
-    height: 40.7,
-    fontSize: "13px",
-    fontWeight: "bold",
-    textTransform: "none",
+  container: {
+    padding: 20,
   },
   card: {
-    margin: 10,
+    marginTop: 10,
+    marginRight: 10,
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -146,9 +144,11 @@ const Index = () => {
     error: "",
     type: "",
   });
+  const [searchValue, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [modalTitle, setTitle] = useState("");
   const [products, setProducts] = useState([]);
+  const [fproducts, setfProducts] = useState([]);
   const [image, setImage] = useState(null);
   const [imageURL, setImageURL] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -197,12 +197,28 @@ const Index = () => {
   //toggle Modal for Edit & add new Product
   const toggleModal = (title) => {
     setTitle(title);
-    setOpen(!open);
+    setOpen(true);
   };
 
   useEffect(() => {
     getData();
   }, []);
+
+  //Modal Close
+  const onModalClose = () => {
+    setImageURL(null);
+    setOpen(false);
+    setProduct({
+      name: "",
+      category: "",
+      quantity: "",
+      images: "",
+      description: "",
+      outOfStock: false,
+      price: "",
+      size: "[]",
+    });
+  };
 
   //validate Data
   const validateData = () => {
@@ -318,6 +334,7 @@ const Index = () => {
       setLoading(false);
       setCategories(categories);
       setProducts(products);
+      setfProducts(products);
     } catch (error) {
       console.log(error.response);
     }
@@ -359,6 +376,16 @@ const Index = () => {
       });
       console.log(res.data);
       setLoading(false);
+      setProduct({
+        name: "",
+        category: "",
+        quantity: "",
+        images: "",
+        description: "",
+        outOfStock: false,
+        price: "",
+        size: "[]",
+      });
       setState({
         snackbar: true,
         error: "New Product Uploaded !",
@@ -389,10 +416,65 @@ const Index = () => {
     reader.readAsDataURL(file);
   };
 
+  //Delete Product
+  const deleteProduct = (id) => {
+    sweetAlert({
+      title: "Are you sure want to delete ?",
+      icon: "warning",
+      buttons: ["No", "Yes"],
+      dangerMode: true,
+      closeOnClickOutside: false,
+    }).then(async (yes) => {
+      if (yes) {
+        setLoading(true);
+        try {
+          const res = await axios.delete(ROUTES.DeleteProduct + id);
+          console.log("res =>", res);
+          setLoading(false);
+          setState({
+            snackbar: true,
+            error: "Product deleted Successfully !",
+            type: "success",
+          });
+          getData();
+        } catch (error) {
+          // console.log(error.response);
+          setLoading(false);
+          setState({
+            snackbar: true,
+            error: "Failed to delete Product !",
+            type: "error",
+          });
+        }
+      }
+    });
+  };
+
+  //Edit Product
+  const editProduct = (p) => {
+    setImageURL(p.images[0]);
+    setProduct(p);
+    toggleModal("Edit Product Details");
+    setOpen(true);
+  };
+
+  //Filter Product on search
+  const filterProducts = (value) => {
+    setSearch(value);
+    let f = products.filter((p) => p.name.includes(value));
+    setfProducts(f);
+  };
+
+  //Clear Filter
+  const clearFilter = () => {
+    setSearch("");
+    setfProducts(products);
+  };
+
   const sizes = ["SMALL", "MEDIUM", "LARGE"];
 
   return (
-    <Container container>
+    <div className={classes.container}>
       <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress style={{ width: 60, height: 60 }} color="primary" />
       </Backdrop>
@@ -420,6 +502,7 @@ const Index = () => {
               label="Name"
               variant="outlined"
               margin="dense"
+              value={product.name}
               error={nameError.error}
               helperText={nameError.helperText}
               onChange={(e) => setProduct({ ...product, name: e.target.value })}
@@ -431,7 +514,7 @@ const Index = () => {
             >
               <InputLabel>Category</InputLabel>
               <Select
-                value={product.category}
+                defaultValue={product.category}
                 onChange={(e) =>
                   setProduct({ ...product, category: e.target.value })
                 }
@@ -452,6 +535,7 @@ const Index = () => {
               type="number"
               variant="outlined"
               margin="dense"
+              value={product.quantity}
               error={quantityError.error}
               helperText={quantityError.helperText}
               onChange={(e) =>
@@ -463,6 +547,7 @@ const Index = () => {
               label="Description"
               variant="outlined"
               margin="dense"
+              value={product.description}
               error={descriptionError.error}
               helperText={descriptionError.helperText}
               onChange={(e) =>
@@ -474,6 +559,7 @@ const Index = () => {
               label="Price"
               variant="outlined"
               type="number"
+              value={product.price}
               className={classes.formControl}
               margin="dense"
               error={priceError.error}
@@ -492,6 +578,7 @@ const Index = () => {
                 multiple
                 id="tags-filled"
                 options={sizes.map((option) => option)}
+                // defaultValue={option[0]}
                 freeSolo
                 size="small"
                 onChange={(e, v) => {
@@ -538,7 +625,7 @@ const Index = () => {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setOpen(false)}
+            onClick={onModalClose}
             variant="outlined"
             color="primary"
             disabled={loading}
@@ -558,6 +645,27 @@ const Index = () => {
         </DialogActions>
       </Dialog>
       <Grid item xs={6}>
+        <TextField
+          margin="dense"
+          placeholder="Seacrh..."
+          value={searchValue}
+          onChange={(e) => filterProducts(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={() => clearFilter()} edge="end">
+                  <Close />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          variant="outlined"
+        />
         <Button
           onClick={() => toggleModal("Add New Product")}
           variant="contained"
@@ -568,49 +676,41 @@ const Index = () => {
       </Grid>
       <Grid container direction="row">
         {loading === false && products.length === 0 ? (
-          <Typography variant="h5" gutterBottom justif>
-            No Products present in Database
-          </Typography>
+          <Typography variant="body1">No Products found in Database</Typography>
         ) : null}
-        {products.map((p, i) => {
+        {fproducts.map((p, i) => {
           return (
-            <Grid key={i} item xs={4}>
+            <Grid key={i} item xs={3}>
               <Card className={classes.card}>
                 <CardActionArea>
-                  <CardMedia
-                    component="img"
-                    // alt="Contemplative Reptile"
-                    height="200"
-                    image={p.images[0]}
-                    // title="Contemplative Reptile"
-                  />
+                  <CardMedia component="img" height="200" image={p.images[0]} />
                   <CardContent>
                     <Typography gutterBottom variant="h5" component="h2">
                       {p.name}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body1" component="p">
+                      Rs {p.price}
+                    </Typography>
+                    <Typography variant="body2" component="p">
                       {p.description}
                     </Typography>
                   </CardContent>
                 </CardActionArea>
-                <CardActions>
-                  <Button size="small" color="primary">
-                    Edit
-                  </Button>
-                  <Button size="small" color="primary">
-                    Delete
-                  </Button>
-                </CardActions>
+                <IconButton onClick={() => {}}>
+                  <Edit />
+                </IconButton>
+                <IconButton
+                  style={{ color: "red" }}
+                  onClick={() => deleteProduct(p._id)}
+                >
+                  <DeleteOutline />
+                </IconButton>
               </Card>
             </Grid>
           );
         })}
       </Grid>
-    </Container>
+    </div>
   );
 };
 
