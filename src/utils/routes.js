@@ -1,4 +1,5 @@
-export const SERVER_URL = "https://saroclassic-server.herokuapp.com";
+// export const SERVER_URL = "https://saroclassic-server.herokuapp.com";
+export const SERVER_URL = "https://saro-classic.herokuapp.com";
 
 export const ROUTES = {
   //Cloudinary img URL
@@ -12,6 +13,7 @@ export const ROUTES = {
   DeleteCategory: `${SERVER_URL}/admin/deleteCategory?name=`,
   AddNewProduct: `${SERVER_URL}/admin/addNewProduct`,
   DeleteProduct: `${SERVER_URL}/admin/deleteProduct?id=`,
+  FeatureProduct: `${SERVER_URL}/admin/featureProduct?id=`,
 
   //Public routes
   GetAllProducts: `${SERVER_URL}/products/all`,

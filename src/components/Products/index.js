@@ -21,7 +21,8 @@ import {
   CardActionArea,
   CardMedia,
   CardContent,
-  OutlinedInput,
+  FormControlLabel,
+  Switch,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -147,6 +148,7 @@ const Index = () => {
     category: "",
     quantity: "",
     images: "",
+    featured: false,
     description: "",
     outOfStock: false,
     price: "",
@@ -442,6 +444,7 @@ const Index = () => {
 
   //Edit Product
   const editProduct = (p) => {
+    console.log("==>", p);
     setImageURL(p.images[0]);
     setProduct(p);
     toggleModal("Edit Product Details");
@@ -459,6 +462,42 @@ const Index = () => {
   const clearFilter = () => {
     setSearch("");
     setfProducts(products);
+  };
+
+  //Feature Product
+  const featureProduct = async (id, f, i) => {
+    setLoading(true);
+    try {
+      if (f) {
+        let res = await axios.put(ROUTES.FeatureProduct + id, { featured: !f });
+        setState({
+          snackbar: true,
+          error: "Product Featured !",
+          type: "success",
+        });
+        getData();
+        setLoading(false);
+      } else {
+        let res = await axios.put(ROUTES.FeatureProduct + id, {
+          featured: true,
+        });
+        setState({
+          snackbar: true,
+          error: "Product Featured !",
+          type: "success",
+        });
+        getData();
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error.response);
+      setLoading(false);
+      setState({
+        snackbar: true,
+        error: "Failed feature this product",
+        type: "error",
+      });
+    }
   };
 
   const sizes = ["SMALL", "MEDIUM", "LARGE"];
@@ -563,16 +602,38 @@ const Index = () => {
                 ),
               }}
             />
+            <FormControl
+              margin="dense"
+              variant="outlined"
+              className={classes.formControl}
+            >
+              <InputLabel>Is Featured</InputLabel>
+              <Select
+                defaultValue={product.featured}
+                onChange={(e) =>
+                  setProduct({ ...product, featured: e.target.value })
+                }
+                labelWidth={110}
+                margin="dense"
+              >
+                <MenuItem value={false}>No</MenuItem>
+                <MenuItem value={true}>Yes</MenuItem>
+              </Select>
+            </FormControl>
             <div>
               <Autocomplete
                 multiple
                 id="tags-filled"
+                // options={
+                //   modalTitle === "Edit Product Details"
+                //     ? JSON.parse(product.size).map((option) => option)
+                //     : sizes.map((option) => option)
+                // }
                 options={sizes.map((option) => option)}
-                // defaultValue={option[0]}
                 freeSolo
                 size="small"
                 onChange={(e, v) => {
-                  console.log(v);
+                  console.log(JSON.stringify(v));
                   setProduct({ ...product, size: JSON.stringify(v) });
                 }}
                 renderTags={(value, getTagProps) =>
@@ -598,6 +659,7 @@ const Index = () => {
                 )}
               />
             </div>
+
             <InputLabel style={{ marginTop: 10 }}>Upload Image</InputLabel>
             <TextField
               onChange={(e) => onImageChange(e)}
@@ -696,6 +758,17 @@ const Index = () => {
                 >
                   <DeleteOutline />
                 </IconButton>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={p.featured}
+                      onChange={() => featureProduct(p._id, p.featured, i)}
+                      name="featured"
+                      color="primary"
+                    />
+                  }
+                  label="Featured"
+                />
               </Card>
             </Grid>
           );
