@@ -500,6 +500,32 @@ const Index = () => {
     }
   };
 
+  //Out of stock Product
+  const outOfStockProduct = async (id, outOfStock) => {
+    setLoading(true);
+    try {
+      let res = await axios.put(ROUTES.OutOfStockProduct + id, {
+        outOfStock: !outOfStock,
+      });
+      console.log(res);
+      setState({
+        snackbar: true,
+        error: "Product Updated !",
+        type: "success",
+      });
+      getData();
+      setLoading(false);
+    } catch (error) {
+      console.log(error.response);
+      setLoading(false);
+      setState({
+        snackbar: true,
+        error: "Failed to update this product",
+        type: "error",
+      });
+    }
+  };
+
   const sizes = ["SMALL", "MEDIUM", "LARGE"];
 
   return (
@@ -620,6 +646,7 @@ const Index = () => {
                 <MenuItem value={true}>Yes</MenuItem>
               </Select>
             </FormControl>
+
             <div>
               <Autocomplete
                 multiple
@@ -747,28 +774,42 @@ const Index = () => {
                     <Typography variant="body2" component="p">
                       {p.description}
                     </Typography>
+
+                    <IconButton onClick={() => {}}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      style={{ color: "red" }}
+                      onClick={() => deleteProduct(p._id)}
+                    >
+                      <DeleteOutline />
+                    </IconButton>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={p.featured}
+                          onChange={() => featureProduct(p._id, p.featured, i)}
+                          name="featured"
+                          color="primary"
+                        />
+                      }
+                      label="Featured"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={p.outOfStock}
+                          onChange={() =>
+                            outOfStockProduct(p._id, p.outOfStock)
+                          }
+                          name="outOfStock"
+                          color="primary"
+                        />
+                      }
+                      label="Out of Stock"
+                    />
                   </CardContent>
                 </CardActionArea>
-                <IconButton onClick={() => {}}>
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  style={{ color: "red" }}
-                  onClick={() => deleteProduct(p._id)}
-                >
-                  <DeleteOutline />
-                </IconButton>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={p.featured}
-                      onChange={() => featureProduct(p._id, p.featured, i)}
-                      name="featured"
-                      color="primary"
-                    />
-                  }
-                  label="Featured"
-                />
               </Card>
             </Grid>
           );
