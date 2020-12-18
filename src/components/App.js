@@ -7,8 +7,11 @@ import { FullpageLoader } from "./CommonComponents";
 import Login from "../components/Login";
 import Layout from "../components/Layout";
 import Home from "../components/Home";
-import Products from "./Products";
+import ProductsWomen from "./ProductsWomen";
+import ProductsMen from "./ProductsMen";
 import Categories from "./Categories";
+import Customers from "./Customers";
+import Orders from "./Orders";
 import ChangePassword from "./ChangePassword";
 
 import { setCurrentUser, logoutUser } from "../redux/actions/authActions";
@@ -35,9 +38,20 @@ const App = ({ auth, setCurrentUser, logoutUser }) => {
         {/* <Suspense fallback={<FullpageLoader />}> */}
         <Switch>
           <Layout>
-            <Route exact path="/home" component={() => <Home />} />
-            <Route exact path="/products" component={() => <Products />} />
+            <Route exact path="/" component={() => <Home />} />
+            <Route
+              exact
+              path="/products-men"
+              component={() => <ProductsMen />}
+            />
+            <Route
+              exact
+              path="/products-women"
+              component={() => <ProductsWomen />}
+            />
             <Route exact path="/categories" component={() => <Categories />} />
+            <Route exact path="/customers" component={() => <Customers />} />
+            <Route exact path="/orders" component={() => <Orders />} />
             <Route
               exact
               path="/settings"

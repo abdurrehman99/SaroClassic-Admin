@@ -320,7 +320,7 @@ const Index = () => {
   //Get all data of products
   const getData = async () => {
     try {
-      const res = await axios.get(ROUTES.GetAllProducts);
+      const res = await axios.get(ROUTES.GetAllProducts + "?q=WOMEN");
       console.log(res.data);
       const { products, categories } = res.data;
       setLoading(false);
@@ -329,6 +329,11 @@ const Index = () => {
       setfProducts(products);
     } catch (error) {
       console.log(error.response);
+      setState({
+        snackbar: true,
+        error: "Failed to fetch data",
+        type: "error",
+      });
     }
   };
 
@@ -365,6 +370,7 @@ const Index = () => {
       const res = await axios.post(ROUTES.AddNewProduct, {
         ...product,
         images: url,
+        mainCategory: "MEN",
       });
       console.log(res.data);
       setLoading(false);
@@ -454,7 +460,7 @@ const Index = () => {
   //Filter Product on search
   const filterProducts = (value) => {
     setSearch(value);
-    let f = products.filter((p) => p.name.includes(value));
+    let f = products.filter((p) => p.name.toLowerCase().includes(value));
     setfProducts(f);
   };
 
@@ -526,7 +532,7 @@ const Index = () => {
     }
   };
 
-  const sizes = ["SMALL", "MEDIUM", "LARGE"];
+  const sizes = ["SMALL", "MEDIUM", "LARGE", "X-LARGE"];
 
   return (
     <div className={classes.container}>
@@ -726,22 +732,23 @@ const Index = () => {
       <div>
         <TextField
           margin="dense"
-          placeholder="Seacrh..."
+          placeholder="Seacrh by name..."
           value={searchValue}
-          onChange={(e) => filterProducts(e.target.value)}
+          onChange={(e) => filterProducts(e.target.value.toLowerCase())}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <Search />
               </InputAdornment>
             ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => clearFilter()} edge="end">
-                  <Close />
-                </IconButton>
-              </InputAdornment>
-            ),
+            endAdornment:
+              searchValue.length > 0 ? (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => clearFilter()} edge="end">
+                    <Close />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
           }}
           variant="outlined"
         />

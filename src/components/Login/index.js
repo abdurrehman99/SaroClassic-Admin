@@ -83,7 +83,8 @@ function Login({ LoginUser, errors }) {
     event.preventDefault();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     setValues({
       showPassword: false,
     });
@@ -125,7 +126,7 @@ function Login({ LoginUser, errors }) {
           <LockOutlinedIcon />
         </Avatar>
         <Typography variant="h5">Admin Login</Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleSubmit} noValidate>
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <TextField
@@ -173,11 +174,10 @@ function Login({ LoginUser, errors }) {
             </Grid>
           </Grid>
           <Button
-            type="button"
+            type="submit"
             fullWidth
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
             className={classes.submit}
             disabled={loading}
           >

@@ -1,5 +1,4 @@
-// export const SERVER_URL = "https://saroclassic-server.herokuapp.com";
-export const SERVER_URL = "https://saro-classic.herokuapp.com";
+export const SERVER_URL = "https://saroclassic-server.herokuapp.com";
 // export const SERVER_URL = "http://localhost:5000";
 
 export const ROUTES = {
@@ -20,4 +19,8 @@ export const ROUTES = {
   //Public routes
   GetAllProducts: `${SERVER_URL}/products/all`,
   GetAllCategories: `${SERVER_URL}/categories/all`,
+  GetAllOrders: `${SERVER_URL}/orders/all`,
+  ChangeOrderStatus: `${SERVER_URL}/orders/changeStatus`,
+  GetAllUsers: `${SERVER_URL}/user/all`,
+  DeleteUser: `${SERVER_URL}/user?id=`,
 };

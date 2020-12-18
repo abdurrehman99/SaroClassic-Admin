@@ -6,11 +6,10 @@ import {
   Grid,
   TextField,
   InputAdornment,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
   ListItemSecondaryAction,
   CircularProgress,
   List,
@@ -99,9 +98,16 @@ const useStyles = makeStyles((theme) => ({
 const Index = () => {
   const classes = useStyles();
   const [categories, setCategories] = useState([]);
+  const [MEN, setMEN] = useState([]);
+  const [WOMEN, setWOMEN] = useState([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
+  const [mainCategory, setMainCategory] = useState("");
   const [categoryError, setCategoryError] = useState({
+    error: false,
+    helperText: "",
+  });
+  const [mainError, setmainError] = useState({
     error: false,
     helperText: "",
   });
@@ -116,18 +122,68 @@ const Index = () => {
     getData();
   }, []);
 
+  const setMain = (e) => {
+    setMainCategory(e.target.value);
+  };
+
   const getData = async () => {
+    setLoading(true);
+    let MEN = [];
+    let WOMEN = [];
     try {
-      setLoading(true);
       const res = await axios.get(ROUTES.GetAllCategories);
-      console.log(res.data);
       const { categories } = res.data;
+      console.log("categories", categories);
+
+      categories.forEach((e) =>
+        e.mainCategory === "MEN"
+          ? MEN.push(e.name)
+          : e.mainCategory === "WOMEN"
+          ? WOMEN.push(e.name)
+          : null
+      );
       setLoading(false);
+      setMEN(MEN);
+      setWOMEN(WOMEN);
       setCategories(categories);
     } catch (error) {
       setLoading(false);
+      setState({
+        snackbar: true,
+        error: "Failed to fetch data",
+        type: "error",
+      });
       console.log(error.response);
     }
+  };
+
+  const validate = () => {
+    let cError;
+    let mError;
+    if (category.length < 3) {
+      cError = {
+        error: true,
+        helperText: "Category Name must be of 3 characters",
+      };
+    } else
+      cError = {
+        error: false,
+        helperText: "",
+      };
+    if (mainCategory === "") {
+      mError = {
+        error: true,
+        helperText: "Please select Main Category",
+      };
+    } else
+      mError = {
+        error: false,
+        helperText: "",
+      };
+
+    setCategoryError(cError);
+    setmainError(mError);
+    if (cError.error === false && mError.error === false) handleNew();
   };
 
   const handleDelete = (name) => {
@@ -144,8 +200,7 @@ const Index = () => {
           const res = await axios.delete(ROUTES.DeleteCategory + name);
           console.log(res.data);
           setLoading(false);
-          let filteredCategory = categories.filter((e) => e.name !== name);
-          setCategories(filteredCategory);
+          getData();
           setState({
             snackbar: true,
             error: res.data.msg,
@@ -165,40 +220,30 @@ const Index = () => {
   };
 
   const handleNew = async () => {
-    let cError;
-    if (category.length < 3) {
-      cError = {
-        error: true,
-        helperText: "Category Name must be of 3 characters",
-      };
-    } else
-      cError = {
-        error: false,
-        helperText: "",
-      };
-    setCategoryError(cError);
-    if (cError.error === false) {
-      try {
-        setLoading(true);
-        const res = await axios.post(ROUTES.AddNewCategory, { name: category });
-        console.log(res.data);
-        setLoading(false);
-        setState({
-          snackbar: true,
-          error: res.data.msg,
-          type: "success",
-        });
-        setCategory("");
-        getData();
-      } catch (error) {
-        setLoading(false);
-        setState({
-          snackbar: true,
-          error: "Failed to add new category",
-          type: "error",
-        });
-        console.log(error.response);
-      }
+    try {
+      setLoading(true);
+      const res = await axios.post(ROUTES.AddNewCategory, {
+        name: category,
+        mainCategory,
+      });
+      console.log(res.data);
+      setLoading(false);
+      setState({
+        snackbar: true,
+        error: res.data.msg,
+        type: "success",
+      });
+      setCategory("");
+      setMainCategory("");
+      getData();
+    } catch (error) {
+      setLoading(false);
+      setState({
+        snackbar: true,
+        error: "Failed to add new category",
+        type: "error",
+      });
+      console.log(error.response);
     }
   };
 
@@ -210,7 +255,7 @@ const Index = () => {
       <Snackbar
         style={{ marginLeft: 90 }}
         open={state.snackbar}
-        autoHideDuration={3000}
+        autoHideDuration={2000}
         onClose={() => setState({ ...state, snackbar: false })}
       >
         <Alert
@@ -220,49 +265,95 @@ const Index = () => {
           {state.error}
         </Alert>
       </Snackbar>
-      <div>
-        <TextField
-          variant="outlined"
-          onChange={(e) => setCategory(e.target.value)}
-          margin="dense"
-          type="text"
-          value={category}
-          maxLength={12}
-          error={categoryError.error}
-          helperText={categoryError.helperText}
-          label="New Category Name"
-          name="category"
-        />
-      </div>
-      <Button onClick={handleNew} variant="contained" color="primary">
-        Add new Category
-      </Button>
-      {loading === false && categories.length === 0 ? (
+      <Grid container spacing={2} alignItems="center" direction="row">
+        <Grid item xs={12} sm={3}>
+          <FormControl margin="dense" fullWidth variant="outlined">
+            <InputLabel id="demo-simple">Main Category</InputLabel>
+            <Select
+              id="demo-simple"
+              value={mainCategory}
+              onChange={setMain}
+              label={"Main Category"}
+              error={mainError.error}
+            >
+              <MenuItem value={"WOMEN"}>WOMEN</MenuItem>
+              <MenuItem value={"MEN"}>MEN</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <TextField
+            variant="outlined"
+            onChange={(e) => setCategory(e.target.value)}
+            margin="dense"
+            type="text"
+            value={category}
+            maxLength={12}
+            fullWidth
+            error={categoryError.error}
+            // helperText={categoryError.helperText}
+            label="Sub Category"
+            name="category"
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Button onClick={validate} variant="contained" color="primary">
+            Add new Category
+          </Button>
+        </Grid>
+      </Grid>
+      {loading === false && MEN.length === 0 && WOMEN.length === 0 ? (
         <Typography variant="body1">No Categories found in Database</Typography>
       ) : null}
-      <Grid item xs={4}>
-        {categories.length > 0 ? (
-          <Typography variant="h6" className={classes.Text}>
-            Categories Available
-          </Typography>
-        ) : null}
-        <List className={classes.root}>
-          {categories.map((value, i) => {
-            return (
-              <ListItem style={{ marginBottom: 5 }} selected key={i}>
-                <ListItemText id={i} primary={`${i + 1}. ${value.name}`} />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    style={{ color: "red" }}
-                    onClick={() => handleDelete(value.name)}
-                  >
-                    <DeleteOutline />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            );
-          })}
-        </List>
+      <Grid container spacing={2} direction="row">
+        <Grid item xs={12} sm={4}>
+          {WOMEN.length > 0 ? (
+            <Typography variant="h6" className={classes.Text}>
+              WOMEN Categories
+            </Typography>
+          ) : null}
+          <List className={classes.root}>
+            {WOMEN.map((value, i) => {
+              return (
+                <ListItem style={{ marginBottom: 5 }} selected key={i}>
+                  <ListItemText id={i} primary={`${i + 1}. ${value}`} />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      style={{ color: "red" }}
+                      onClick={() => handleDelete(value)}
+                    >
+                      <DeleteOutline />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              );
+            })}
+          </List>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          {MEN.length > 0 ? (
+            <Typography variant="h6" className={classes.Text}>
+              MEN Categories
+            </Typography>
+          ) : null}
+          <List className={classes.root}>
+            {MEN.map((value, i) => {
+              return (
+                <ListItem style={{ marginBottom: 5 }} selected key={i}>
+                  <ListItemText id={i} primary={`${i + 1}. ${value}`} />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      style={{ color: "red" }}
+                      onClick={() => handleDelete(value)}
+                    >
+                      <DeleteOutline />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              );
+            })}
+          </List>
+        </Grid>
       </Grid>
     </Container>
   );

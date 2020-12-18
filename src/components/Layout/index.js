@@ -59,7 +59,12 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     whiteSpace: "nowrap",
   },
-  submenu: {},
+  lineDiv: {
+    borderLeft: "3px solid white",
+    marginLeft: 50,
+    marginTop: 10,
+    marginBottom: 10,
+  },
   drawerOpen: {
     width: drawerWidth,
     background: theme.palette.primary.main,
@@ -143,9 +148,11 @@ const Index = ({ children, logoutUser }) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(true);
+  const [product, setProduct] = useState(true);
 
   const toggleDrawer = () => {
     setOpen((prevState) => !prevState);
+    setProduct(!product);
   };
 
   const logout = () => {
@@ -159,6 +166,10 @@ const Index = ({ children, logoutUser }) => {
         logoutUser();
       }
     });
+  };
+  const handleProductClick = () => {
+    setProduct(!product);
+    if (!open) setOpen(true);
   };
 
   return (
@@ -199,8 +210,7 @@ const Index = ({ children, logoutUser }) => {
       >
         <List className={classes.textWhite}>
           <MenuItem
-            component={Link}
-            to={"/products"}
+            onClick={handleProductClick}
             className={classes.listItem}
             button
           >
@@ -209,6 +219,32 @@ const Index = ({ children, logoutUser }) => {
             </ListItemIcon>
             <ListItemText primary={"PRODUCTS"} />
           </MenuItem>
+
+          <Collapse
+            className={classes.lineDiv}
+            in={product}
+            timeout="auto"
+            unmountOnExit
+          >
+            <List className={classes.submenu} component="div" disablePadding>
+              <MenuItem
+                component={Link}
+                to={"/products-women"}
+                button
+                className={classes.nested}
+              >
+                <ListItemText primary="WOMEN" />
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to={"/products-men"}
+                button
+                className={classes.nested}
+              >
+                <ListItemText primary="MEN" />
+              </MenuItem>
+            </List>
+          </Collapse>
 
           <MenuItem
             component={Link}
@@ -224,7 +260,7 @@ const Index = ({ children, logoutUser }) => {
 
           <MenuItem
             component={Link}
-            to={"/account"}
+            to={"/orders"}
             className={classes.listItem}
             button
           >
@@ -236,7 +272,7 @@ const Index = ({ children, logoutUser }) => {
 
           <MenuItem
             component={Link}
-            to={"/account"}
+            to={"/customers"}
             className={classes.listItem}
             button
           >
