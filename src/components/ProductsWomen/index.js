@@ -329,6 +329,7 @@ const Index = () => {
       setfProducts(products);
     } catch (error) {
       console.log(error.response);
+      setLoading(false);
       setState({
         snackbar: true,
         error: "Failed to fetch data",

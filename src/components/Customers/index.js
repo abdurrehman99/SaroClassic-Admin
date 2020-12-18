@@ -9,7 +9,6 @@ import {
   Snackbar,
   InputAdornment,
   CircularProgress,
-  Dialog,
   Backdrop,
   IconButton,
   Table,
@@ -39,6 +38,10 @@ const useStyles = makeStyles((theme) => ({
   bodyPadding: {
     // paddingBottom: theme.spacing(1),
     fontWeight: "bold",
+  },
+  root: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
   },
   container: {
     padding: 20,
@@ -109,6 +112,7 @@ function Alert(props) {
 }
 const Index = () => {
   const classes = useStyles();
+
   const [state, setState] = useState({
     snackbar: false,
     error: "",
@@ -140,6 +144,7 @@ const Index = () => {
       setfProducts(users);
     } catch (error) {
       console.log(error.response);
+      setLoading(false);
       setState({
         snackbar: true,
         error: "Failed to fetch data",
@@ -235,6 +240,7 @@ const Index = () => {
           variant="outlined"
         />
       </div>
+
       <Grid container>
         {loading === false && products.length === 0 ? (
           <Typography variant="body1">

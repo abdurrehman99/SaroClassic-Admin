@@ -105,7 +105,10 @@ export default function SignIn() {
         console.log(error.response);
         setState({
           snackbar: true,
-          error: error.response.data.message,
+          error:
+            error.response && error.response.data
+              ? error.response.data.message
+              : "Request failed !",
           type: "error",
         });
       }

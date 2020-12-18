@@ -4,12 +4,18 @@ import {
   Typography,
   Button,
   Grid,
+  Select,
+  MenuItem,
+  InputLabel,
   TextField,
   Paper,
   Snackbar,
   InputAdornment,
   CircularProgress,
   Backdrop,
+  Tabs,
+  Tab,
+  AppBar,
   IconButton,
   Box,
 } from "@material-ui/core";
@@ -20,18 +26,50 @@ import { ROUTES } from "../../utils/routes";
 import axios from "axios";
 import {
   Close,
-  Add,
+  Check,
   Done,
+  HelpOutline,
   Search,
+  LocalShipping,
   DeleteOutline,
   Edit,
 } from "@material-ui/icons";
-import sweetAlert from "sweetalert";
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 
 const useStyles = makeStyles((theme) => ({
   bodyPadding: {
     // paddingBottom: theme.spacing(1),
     fontWeight: "bold",
+  },
+  root: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
   },
   container: {
     padding: 20,
@@ -118,20 +156,42 @@ const Index = () => {
     error: "",
     type: "",
   });
+  const [value, setValue] = useState(0);
+
   const [searchValue, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const [modalTitle, setTitle] = useState("");
-  const [products, setProducts] = useState([]);
-  const [fproducts, setfProducts] = useState([]);
-  const [image, setImage] = useState(null);
-  const [imageURL, setImageURL] = useState(null);
-  const [categories, setCategories] = useState([]);
+
+  const [pendingOrders, setPending] = useState([]);
+  const [confirmedOrders, setConfirmed] = useState([]);
+  const [deliveredOrders, setDelivered] = useState([]);
+
+  const [fpendingOrders, setfPending] = useState([]);
+  const [fconfirmedOrders, setfConfirmed] = useState([]);
+  const [fdeliveredOrders, setfDelivered] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getData();
   }, []);
+
+  //Switch Tabs
+  const handleChange = (event, newValue) => {
+    setSearch("");
+    setValue(newValue);
+  };
+
+  //Filter All orders
+  const filterOrders = (orders) => {
+    let pendingOrders = orders.filter((o) => o.status === "PENDING");
+    let confirmedOrders = orders.filter((o) => o.status === "CONFIRMED");
+    let deliveredOrders = orders.filter((o) => o.status === "DELIVERED");
+    setPending(pendingOrders);
+    setConfirmed(confirmedOrders);
+    setDelivered(deliveredOrders);
+    setfPending(pendingOrders);
+    setfConfirmed(confirmedOrders);
+    setfDelivered(deliveredOrders);
+  };
 
   //Get all data of Orders
   const getData = async () => {
@@ -140,8 +200,7 @@ const Index = () => {
       console.log("data==>", res.data);
       const { orders } = res.data;
       setLoading(false);
-      setProducts(orders);
-      setfProducts(orders);
+      filterOrders(orders);
     } catch (error) {
       console.log(error.response);
       setLoading(false);
@@ -154,19 +213,197 @@ const Index = () => {
   };
 
   //Filter Product on search
-  const filterProducts = (value) => {
-    setSearch(value);
-    let f = products.filter((p) => {
-      let s = p.orderNo.substring(2, 5);
-      return s.includes(value);
-    });
-    setfProducts(f);
+  const filterProducts = (v) => {
+    setSearch(v);
+    if (value === 0) {
+      let f = pendingOrders.filter((p) => p.orderNo.includes(v));
+      setfPending(f);
+    } else if (value === 1) {
+      let f = confirmedOrders.filter((p) => p.orderNo.includes(v));
+      setfConfirmed(f);
+    } else {
+      let f = deliveredOrders.filter((p) => p.orderNo.includes(v));
+      setfDelivered(f);
+    }
+  };
+
+  const renderPendingOrders = () => {
+    return (
+      <Grid container>
+        <Grid item xs={12}>
+          {loading === false && pendingOrders.length === 0 ? (
+            <Typography variant="body1">No Orders found in Database</Typography>
+          ) : null}
+          {fpendingOrders.map((item, i) => (
+            <Paper key={i} className={classes.card} elevation={5}>
+              <Box className={classes.cardTop}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Order Number # <b>{item.orderNo}</b>
+                  </Typography>
+                  <Typography variant="body1">
+                    Total Amount: <b>{item.totalBill} PKR</b>
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Placed on: <b>{item.orderDate}</b>
+                  </Typography>
+                </Box>
+                <Box display="flex">
+                  {/* <Typography variant="body1">
+                    Status: <b>{item.status}</b>
+                  </Typography> */}
+                </Box>
+                <Typography variant="body1">
+                  Shipping Address: <b>{item.shippingAddress}</b>
+                </Typography>
+                <Typography variant="body1">
+                  Payment Method: <b>{item.paymentMethod}</b>
+                </Typography>
+              </Box>
+              <Box p={2}>
+                <div style={{ marginBottom: 10 }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Change Status
+                    <Select
+                      style={{ marginLeft: 10 }}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={item.status}
+                      onChange={(e) => changeStatus(item._id, e.target.value)}
+                    >
+                      <MenuItem value={"PENDING"}>PENDING</MenuItem>
+                      <MenuItem value={"CONFIRMED"}>CONFIRMED</MenuItem>
+                      <MenuItem value={"DELIVERED"}>DELIVERED</MenuItem>
+                    </Select>
+                  </InputLabel>
+                </div>
+                {item.cart.map((item, i) => {
+                  return <OrderHistoryItemCard key={i} content={item} />;
+                })}
+              </Box>
+            </Paper>
+          ))}
+        </Grid>
+      </Grid>
+    );
+  };
+  const renderConfirmedOrders = () => {
+    return (
+      <Grid container>
+        <Grid item xs={12}>
+          {loading === false && confirmedOrders.length === 0 ? (
+            <Typography variant="body1">No Orders found in Database</Typography>
+          ) : null}
+          {fconfirmedOrders.map((item, i) => (
+            <Paper key={i} className={classes.card} elevation={5}>
+              <Box className={classes.cardTop}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Order Number # <b>{item.orderNo}</b>
+                  </Typography>
+                  <Typography variant="body1">
+                    Total Amount: <b>{item.totalBill} PKR</b>
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Placed on: {item.orderDate}
+                  </Typography>
+                </Box>
+                <Box display="flex">
+                  <Typography variant="body1" style={{ margin: "0 10px 0 0" }}>
+                    Status: <b>{item.status}</b>
+                  </Typography>
+                </Box>
+                <Typography variant="body1">
+                  Shipping Address: <b>{item.shippingAddress}</b>
+                </Typography>
+                <Typography variant="body1">
+                  Payment Method: <b>{item.paymentMethod}</b>
+                </Typography>
+              </Box>
+              <Box p={2}>
+                <div style={{ marginBottom: 10 }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Change Status
+                    <Select
+                      style={{ marginLeft: 10 }}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={item.status}
+                      onChange={(e) => changeStatus(item._id, e.target.value)}
+                    >
+                      <MenuItem value={"CONFIRMED"}>CONFIRMED</MenuItem>
+                      <MenuItem value={"DELIVERED"}>DELIVERED</MenuItem>
+                    </Select>
+                  </InputLabel>
+                </div>
+                {item.cart.map((item, i) => {
+                  return <OrderHistoryItemCard key={i} content={item} />;
+                })}
+              </Box>
+            </Paper>
+          ))}
+        </Grid>
+      </Grid>
+    );
+  };
+  const renderDeliveredOrders = () => {
+    return (
+      <Grid container>
+        <Grid item xs={12}>
+          {loading === false && deliveredOrders.length === 0 ? (
+            <Typography variant="body1">No Orders found in Database</Typography>
+          ) : null}
+          {fdeliveredOrders.map((item, i) => (
+            <Paper key={i} className={classes.card} elevation={5}>
+              <Box className={classes.cardTop}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Order Number # <b>{item.orderNo}</b>
+                  </Typography>
+                  <Typography variant="body1">
+                    Total Amount: <b>{item.totalBill} PKR</b>
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body1">
+                    Placed on: {item.orderDate}
+                  </Typography>
+                </Box>
+
+                <Typography variant="body1">
+                  Shipping Address: <b>{item.shippingAddress}</b>
+                </Typography>
+                <Typography variant="body1">
+                  Payment Method: <b>{item.paymentMethod}</b>
+                </Typography>
+              </Box>
+              <Box p={2}>
+                <Box display="flex">
+                  <Typography variant="body1" style={{ marginBottom: 10 }}>
+                    Status: <b style={{ color: "green" }}>{item.status}</b>
+                  </Typography>
+                </Box>
+                {item.cart.map((item, i) => {
+                  return <OrderHistoryItemCard key={i} content={item} />;
+                })}
+              </Box>
+            </Paper>
+          ))}
+        </Grid>
+      </Grid>
+    );
   };
 
   //Clear Filter
   const clearFilter = () => {
     setSearch("");
-    setfProducts(products);
+    setfPending(pendingOrders);
+    setfConfirmed(confirmedOrders);
+    setfDelivered(deliveredOrders);
   };
 
   //Change Status
@@ -174,6 +411,7 @@ const Index = () => {
     setLoading(true);
     try {
       const res = await axios.put(ROUTES.ChangeOrderStatus, { id, status });
+      console.log(res.data);
       setLoading(false);
       setState({
         snackbar: true,
@@ -196,7 +434,7 @@ const Index = () => {
 
   return (
     <div className={classes.container}>
-      <Typography variant="h6">
+      <Typography style={{ marginBottom: 10 }} variant="h6">
         <b>All Orders History</b>
       </Typography>
       <Backdrop className={classes.backdrop} open={loading}>
@@ -215,7 +453,15 @@ const Index = () => {
           {state.error}
         </Alert>
       </Snackbar>
-      <Grid container style={{ marginBottom: 10 }}>
+
+      <AppBar position="static">
+        <Tabs centered value={value} onChange={handleChange}>
+          <Tab icon={<HelpOutline />} label="PENDING" {...a11yProps(0)} />
+          <Tab icon={<Check />} label="CONFIRMED" {...a11yProps(1)} />
+          <Tab icon={<LocalShipping />} label="DELIVERED" {...a11yProps(2)} />
+        </Tabs>
+      </AppBar>
+      <Grid container style={{ marginTop: 10, marginBottom: 10 }}>
         <Grid item xs={12} sm={4}>
           <TextField
             margin="dense"
@@ -244,49 +490,15 @@ const Index = () => {
           />
         </Grid>
       </Grid>
-      <Grid container>
-        <Grid item xs={12}>
-          {loading === false && products.length === 0 ? (
-            <Typography variant="body1">No Orders found in Database</Typography>
-          ) : null}
-          {fproducts.map((item, i) => (
-            <Paper key={i} className={classes.card} elevation={5}>
-              <Box className={classes.cardTop}>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body1">
-                    Order Number # <b>{item.orderNo}</b>
-                  </Typography>
-                  <Typography variant="body1">
-                    Total Amount: <b>{item.totalBill} PKR</b>
-                  </Typography>
-                  {item.cart.forEach((e) => {
-                    QUANTITY = 0;
-                    QUANTITY = QUANTITY + Number(e.quantity);
-                  })}
-                  <Typography variant="body1">
-                    Total Items: <b>{QUANTITY}</b>
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body1">
-                    Placed on: {item.orderDate}
-                  </Typography>
-                </Box>
-                <Box display="flex">
-                  <Typography variant="body1" style={{ margin: "0 10px 0 0" }}>
-                    Status: <b>{item.status}</b>
-                  </Typography>
-                </Box>
-              </Box>
-              <Box p={2}>
-                {item.cart.map((item, i) => {
-                  return <OrderHistoryItemCard key={i} content={item} />;
-                })}
-              </Box>
-            </Paper>
-          ))}
-        </Grid>
-      </Grid>
+      <TabPanel value={value} index={0}>
+        {renderPendingOrders()}
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        {renderConfirmedOrders()}
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+        {renderDeliveredOrders()}
+      </TabPanel>
     </div>
   );
 };
