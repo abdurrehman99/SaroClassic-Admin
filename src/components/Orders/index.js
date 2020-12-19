@@ -19,7 +19,6 @@ import {
   IconButton,
   Box,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
 import MuiAlert from "@material-ui/lab/Alert";
 import OrderHistoryItemCard from "./OrderCard";
 import { ROUTES } from "../../utils/routes";
@@ -151,12 +150,14 @@ function Alert(props) {
 }
 const Index = () => {
   const classes = useStyles();
-  const [state, setState] = useState({
+  const [popup, setState] = useState({
     snackbar: false,
     error: "",
     type: "",
   });
   const [value, setValue] = useState(0);
+
+  const [user, setUser] = useState(null);
 
   const [searchValue, setSearch] = useState("");
 
@@ -195,15 +196,25 @@ const Index = () => {
 
   //Get all data of Orders
   const getData = async () => {
+    let userOrder = JSON.parse(localStorage.getItem("user-orders"));
+    setUser(userOrder);
+    let URL;
+    // console.log("search==> ", userOrder);
+    userOrder && userOrder._id
+      ? (URL = ROUTES.GetUserOrders + userOrder._id)
+      : (URL = ROUTES.GetAllOrders);
+    // console.log(URL);
     try {
-      const res = await axios.get(ROUTES.GetAllOrders);
+      const res = await axios.get(URL);
       console.log("data==>", res.data);
       const { orders } = res.data;
       setLoading(false);
       filterOrders(orders);
+      localStorage.removeItem("user-orders");
     } catch (error) {
       console.log(error.response);
       setLoading(false);
+      localStorage.removeItem("user-orders");
       setState({
         snackbar: true,
         error: "Failed to fetch data",
@@ -435,30 +446,42 @@ const Index = () => {
   return (
     <div className={classes.container}>
       <Typography style={{ marginBottom: 10 }} variant="h6">
-        <b>All Orders History</b>
+        <b>All Orders History {user ? `of ${user.name}` : ""}</b>
       </Typography>
       <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress style={{ width: 60, height: 60 }} color="primary" />
       </Backdrop>
       <Snackbar
         style={{ marginLeft: 90 }}
-        open={state.snackbar}
+        open={popup.snackbar}
         autoHideDuration={3000}
-        onClose={() => setState({ ...state, snackbar: false })}
+        onClose={() => setState({ ...popup, snackbar: false })}
       >
         <Alert
-          onClose={() => setState({ ...state, snackbar: false })}
-          severity={state.type}
+          onClose={() => setState({ ...popup, snackbar: false })}
+          severity={popup.type}
         >
-          {state.error}
+          {popup.error}
         </Alert>
       </Snackbar>
 
       <AppBar position="static">
         <Tabs centered value={value} onChange={handleChange}>
-          <Tab icon={<HelpOutline />} label="PENDING" {...a11yProps(0)} />
-          <Tab icon={<Check />} label="CONFIRMED" {...a11yProps(1)} />
-          <Tab icon={<LocalShipping />} label="DELIVERED" {...a11yProps(2)} />
+          <Tab
+            icon={<HelpOutline />}
+            label={`PENDING (${pendingOrders.length})`}
+            {...a11yProps(0)}
+          />
+          <Tab
+            icon={<Check />}
+            label={`CONFIRMED (${confirmedOrders.length})`}
+            {...a11yProps(1)}
+          />
+          <Tab
+            icon={<LocalShipping />}
+            label={`DELIVERED (${deliveredOrders.length})`}
+            {...a11yProps(2)}
+          />
         </Tabs>
       </AppBar>
       <Grid container style={{ marginTop: 10, marginBottom: 10 }}>

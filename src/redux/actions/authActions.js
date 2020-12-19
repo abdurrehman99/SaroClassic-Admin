@@ -26,9 +26,13 @@ export const LoginUser = (data) => async (dispatch) => {
     //Save to local storage
     localStorage.setItem("jwtToken", jwtToken[1]);
   } catch (error) {
-    // console.log(error.response.data);
-    let { message } = error.response.data;
-    dispatch(setErrors(message));
+    console.log(error);
+    if (error.response && error.response.data) {
+      let { message } = error.response.data;
+      dispatch(setErrors(message));
+    } else {
+      dispatch(setErrors("Network Error"));
+    }
   }
 };
 

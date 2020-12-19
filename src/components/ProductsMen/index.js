@@ -247,7 +247,7 @@ const Index = () => {
     if (description.length < 10) {
       dError = {
         error: true,
-        helperText: "Description id too short",
+        helperText: "Description id short",
       };
     } else {
       dError = {

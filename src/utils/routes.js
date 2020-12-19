@@ -19,7 +19,9 @@ export const ROUTES = {
   //Public routes
   GetAllProducts: `${SERVER_URL}/products/all`,
   GetAllCategories: `${SERVER_URL}/categories/all`,
+
   GetAllOrders: `${SERVER_URL}/orders/all`,
+  GetUserOrders: `${SERVER_URL}/orders/singleUserOrders?id=`,
   ChangeOrderStatus: `${SERVER_URL}/orders/changeStatus`,
   GetAllUsers: `${SERVER_URL}/user/all`,
   DeleteUser: `${SERVER_URL}/user?id=`,

@@ -17,8 +17,9 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  Tooltip,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import MuiAlert from "@material-ui/lab/Alert";
 
@@ -111,6 +112,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 const Index = () => {
+  const history = useHistory();
   const classes = useStyles();
 
   const [state, setState] = useState({
@@ -199,6 +201,14 @@ const Index = () => {
     });
   };
 
+  //Go to orders page
+  const showUserOrders = (user) => {
+    localStorage.setItem("user-orders", JSON.stringify(user));
+    history.push({
+      pathname: "/orders",
+    });
+  };
+
   return (
     <div className={classes.container}>
       <Backdrop className={classes.backdrop} open={loading}>
@@ -220,7 +230,7 @@ const Index = () => {
       <div style={{ marginBottom: 10 }}>
         <TextField
           margin="dense"
-          placeholder="Seacrh by name..."
+          placeholder="Search by name..."
           value={searchValue}
           onChange={(e) => filterProducts(e.target.value.toLowerCase())}
           InputProps={{
@@ -242,12 +252,7 @@ const Index = () => {
       </div>
 
       <Grid container>
-        {loading === false && products.length === 0 ? (
-          <Typography variant="body1">
-            No Customers found in Database
-          </Typography>
-        ) : null}
-        <TableContainer component={Paper}>
+        <TableContainer style={{ marginTop: 10 }} component={Paper}>
           <Table className={classes.table} aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -271,25 +276,40 @@ const Index = () => {
             </TableHead>
             <TableBody>
               {fproducts.map((user, i) => (
-                <TableRow key={1}>
+                <TableRow key={i}>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.contact}</TableCell>
+                  <TableCell>+92 {user.contact}</TableCell>
                   <TableCell>{user.shippingAddress}</TableCell>
-                  <TableCell align="center">{user.orders.length}</TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={"See Orders of this User"}>
+                      <IconButton onClick={() => showUserOrders(user)}>
+                        <Typography variant="body1">
+                          {user.orders.length}
+                        </Typography>
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>
-                    <IconButton
-                      style={{ color: "red" }}
-                      onClick={() => deleteUser(user._id)}
-                    >
-                      <DeleteOutline />
-                    </IconButton>
+                    <Tooltip title={"Delete User"}>
+                      <IconButton
+                        style={{ color: "red" }}
+                        onClick={() => deleteUser(user._id)}
+                      >
+                        <DeleteOutline />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+        {loading === false && products.length === 0 ? (
+          <Typography style={{ padding: 15 }} variant="body1">
+            No Customers found in Database
+          </Typography>
+        ) : null}
       </Grid>
     </div>
   );

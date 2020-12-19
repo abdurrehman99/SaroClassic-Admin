@@ -733,7 +733,7 @@ const Index = () => {
       <div>
         <TextField
           margin="dense"
-          placeholder="Seacrh by name..."
+          placeholder="Search by name..."
           value={searchValue}
           onChange={(e) => filterProducts(e.target.value.toLowerCase())}
           InputProps={{
