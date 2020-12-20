@@ -371,7 +371,7 @@ const Index = () => {
       const res = await axios.post(ROUTES.AddNewProduct, {
         ...product,
         images: url,
-        mainCategory: "MEN",
+        mainCategory: "WOMEN",
       });
       console.log(res.data);
       setLoading(false);
