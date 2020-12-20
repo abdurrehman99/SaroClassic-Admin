@@ -177,11 +177,7 @@ const Index = ({ children, logoutUser }) => {
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
-          <MenuItem
-            style={{ marginRight: "auto" }}
-            component={Link}
-            to={"/home"}
-          >
+          <MenuItem style={{ marginRight: "auto" }} component={Link} to={"/"}>
             <img src={Logo} alt="" className={classes.navLogo} />
           </MenuItem>
           <IconButton
